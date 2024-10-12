@@ -1,2 +1,2 @@
-# Virtual-Pet
-A virtual pet coded using JavaScript and Flask 
+# Take Care of Charlie
+Take care of your virtual pet dog Charlie!
