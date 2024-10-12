@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Pet Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1><u>Charlie</u></h1>
+    <h3>Please Take Care of Charlie</h3>
+    <p>Charlie is still active even when ur away, 
+        <br>so pls come back and check on him time to time</p>
+    <hr>
+    <p>Hunger: (should be 0) <span id="hunger"></span></p>
+    <p>Happiness: (should be 100) <span id="happiness"></span></p>
+    <p>Health: (should be 100) <span id="health"></span></p>
+
+    <button onclick="feedPet()">Feed</button>
+    <button onclick="playWithPet()">Play</button>
+    <button onclick="cleanPet()">Clean</button>
+
+    <div id="dog" class="dog-container">
+        <div class="dog-body">
+          <div class="dog-leg dog-leg-front"></div>
+          <div class="dog-leg dog-leg-back"></div>
+          <div class="dog-tail"></div>
+        </div>
+        <div class="dog-head">
+            <div class = "dog-mouth"></div>
+            <div class="dog-ear"></div>
+            <div class="dog-eye"></div>
+            <div class = "dog-nose"></div>
+        </div>
+      </div>
+
+    <script>
+        function updateStats() {
+            $.get('/get_stats', function(data) {
+                if (!data.error) {
+                    $('#hunger').text(data.hunger);
+                    $('#happiness').text(data.happiness);
+                    $('#health').text(data.health);
+                } else {
+                    console.log('Error: ' + data.error);
+                }
+            });
+        }
+
+        function feedPet() {
+            $.post('/feed', function(data) {
+                updateStats();
+            });
+        }
+
+        function playWithPet() {
+            $.post('/play', function(data) {
+                updateStats();
+            });
+        }
+
+        function cleanPet() {
+            $.post('/clean', function(data) {
+                updateStats();
+            });
+        }
+
+        // Periodically update stats every 5 seconds
+        setInterval(updateStats, 5000);
+
+        // Initial stats update when the page loads
+        $(document).ready(function() {
+            updateStats();
+        });
+
+        const dog = document.getElementById("dog");
+
+        // Set the dog's initial position to the middle of the screen
+        let currentPosition = (window.innerWidth - dog.offsetWidth) / 2;
+
+        // Apply initial position and styles
+        dog.style.position = "absolute";
+        dog.style.left = `${currentPosition}px`;
+        dog.style.transition = "left 0.5s ease"; // Smooth easing
+
+        function moveDog() {
+            const screenWidth = window.innerWidth;
+            const dogWidth = dog.offsetWidth;
+
+            // Randomly choose a direction: -1 for left, 1 for right
+            const direction = Math.random() < 0.5 ? -1 : 1;
+            const stepSize = Math.floor(Math.random() * 41) + 10; // Random step size between 10 and 50
+
+            // Calculate new position
+            currentPosition += direction * stepSize;
+
+            // Keep the dog within screen boundaries
+            if (currentPosition <= 0) {
+                currentPosition = 0;
+            } else if (currentPosition >= screenWidth - dogWidth) {
+                currentPosition = screenWidth - dogWidth;
+            }
+
+            // Apply transformation to flip the dog and move it
+            dog.style.transform = `scaleX(${-direction})`;
+            dog.style.left = `${currentPosition}px`;
+        }
+
+        // Move the dog every second with a random direction and step size
+        setInterval(moveDog, 1000);
+
+        
+    </script>
+</body>
+</html>
